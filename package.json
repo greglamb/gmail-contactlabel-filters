@@ -1,0 +1,18 @@
+{
+  "name": "gamil-contactlabel-filters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "googleapis": "^52.1.0",
+    "lodash.get": "^4.4.2",
+    "sane-email-validation": "^3.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

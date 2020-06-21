@@ -1,0 +1,8 @@
+Actual Sort Order in Gmail...
+
+⭕ Automated Filter
+🔴 Prioritized Manual Filter
+🔵 Prioritized Manual Filter
+🟠 Prioritized Manual Filter
+🟡 Prioritized Manual Filter
+🟢 Prioritized Manual Filter
