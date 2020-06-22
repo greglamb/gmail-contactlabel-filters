@@ -160,7 +160,7 @@ async function main(auth) {
 
     await Promise.all(Object.keys(contactGroupsByName).map(async function (name) {
         if (!mailLabelsByName[name]) {
-            log('Creating: ', name);
+            log('Preparing: ', name);
 
             let labelPayload = { name }
             let { data: { id: newLabelId } } = await gmail.users.labels.create({ userId: 'me', requestBody: labelPayload });
@@ -185,26 +185,20 @@ async function main(auth) {
 
     dump(managedFilters);
 
-    header('Delete all managed filters');
+    header('Prepare new managed filters');
 
-    for (const filter of managedFilters) {
-        log('Deleting: ', filter.criteria);
-
-        await gmail.users.settings.filters.delete({ userId: 'me', id: filter.id });
-    }
-
-    header('Create new filters based on contact groups');
-
-    // this can't be done in parallel
+    const newFilters = [];
+    const filterValidation = {};
     for (const groupName in contactGroupsByName) {
         if (contactGroupsByName.hasOwnProperty(groupName)) {
             log('Creating: ', groupName);
 
             const group = contactGroupsByName[groupName];
+            const fromCritera = '{' + group.emails.join(' ') + '}';
 
             let filterPayload = {
                 criteria: {
-                    from: '{' + group.emails.join(' ') + '}',
+                    from: fromCritera,
                     //to: string,
                     //subject: string,
                     //query: string,
@@ -222,11 +216,38 @@ async function main(auth) {
             }
 
             if (group.emails.length) {
-                let response = await gmail.users.settings.filters.create({ userId: 'me', requestBody: filterPayload });
-                dump(response);
+                newFilters.push(filterPayload);
+                filterValidation[fromCritera] = true;
             } else {
                 log('Skipped: Group Empty');
             }
+        }
+    }
+
+    dump(newFilters);
+    dump(filterValidation);
+
+    header('Delete all managed filters');
+
+    const filterSkipCreate = {};
+    for (const filter of managedFilters) {
+        log('Deleting: ', filter.criteria.from);
+        if (!filterValidation[filter.criteria.from]) {
+            await gmail.users.settings.filters.delete({ userId: 'me', id: filter.id });
+        } else {
+            filterSkipCreate[filter.criteria.from] = true;
+            log('Skipping delete since new filter matches old filder');
+        }
+    }
+
+    header('Create new filters based on contact groups');
+
+    // this can't be done in parallel
+    for (const filter of newFilters) {
+        if (!filterSkipCreate[filter.criteria.from]) {
+            log('Creating: ', filter.criteria.from);
+            let response = await gmail.users.settings.filters.create({ userId: 'me', requestBody: filter });
+            dump(response);
         }
     }
 
