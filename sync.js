@@ -98,7 +98,7 @@ async function main(auth) {
     const contactGroupsByName = {};
     const contactGroupsByIndex = {};
     await Promise.all(groups.contactGroups.map(async group => {
-        if (!group.name.match(/^⭕ /)) return;
+        if (!group.name.match(/^⭕/)) return;
         contactGroupsByName[group.name] = {};
         contactGroupsByName[group.name].id = group.resourceName; // might need formattedName?
         contactGroupsByName[group.name].emails = [];
@@ -146,7 +146,7 @@ async function main(auth) {
     header('Get all managed mail labels');
 
     const { data: { labels: allMailLabels } } = await gmail.users.labels.list({ userId: 'me' });
-    const filteredMailLabels = allMailLabels.filter(label => label.name.match(/^⭕ /));
+    const filteredMailLabels = allMailLabels.filter(label => label.name.match(/^⭕/));
     const mailLabelsById = {};
     const mailLabelsByName = {};
     await Promise.all(filteredMailLabels.map(async label => {
